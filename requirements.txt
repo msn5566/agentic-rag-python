@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-multipart
+langchain
+langchain-community
+langchain-chroma
+langchain-ollama
+chromadb
+pypdf
+python-docx
+docx2txt
+tiktoken
+pydantic
+numpy
+ollama
+streamlit
+langchain-google-genai

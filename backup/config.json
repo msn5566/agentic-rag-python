@@ -1,0 +1,9 @@
+{
+  "ollama_llm": "llama3.1:8b",
+  "ollama_embed": "nomic-embed-text",
+  "chunk_size": 1200,
+  "chunk_overlap": 150,
+  "k": 4,
+  "min_relevance": 0.7,
+  "persist_dir": "storage/chroma"
+}
