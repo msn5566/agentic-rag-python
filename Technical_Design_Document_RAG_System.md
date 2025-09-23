@@ -67,15 +67,14 @@ This document outlines the technical design for a comprehensive Secure RAG (Retr
 ### 2.2 Component Architecture
 
 #### 2.2.1 Application Layer
-- **Standard App (`app_google.py`)**: Basic RAG functionality with Guardrails integration
-- **Secure App (`secure_app.py`)**: Enterprise-grade security with advanced features
+- **Main App (`app_google.py`)**: RAG functionality with basic Guardrails AI integration
+- **RAG Utilities (`rag_google.py`)**: Core document processing and retrieval functions
 
-#### 2.2.2 Security Layer
+#### 2.2.2 Security Layer (Current Implementation)
 - **Guardrails AI Framework**: Input/output validation, PII detection, toxic language filtering
-- **Authentication System**: JWT-based user authentication and session management
-- **Authorization Engine**: Role-based access control (RBAC)
-- **Rate Limiting**: Request throttling and DDoS protection
-- **Security Monitoring**: Threat detection and audit logging
+- **Basic CORS**: Allow all origins for development
+- **File Validation**: Basic file type and content validation
+- **Error Handling**: Safe error message sanitization
 
 #### 2.2.3 Processing Layer
 - **Multimodal Processor**: Text, image, and document analysis
@@ -131,20 +130,19 @@ def validate_search_results(results):
     - Safe error handling
 ```
 
-### 3.2 Security Features Matrix
+### 3.2 Current Security Features Matrix
 
-| Feature | Standard App | Secure App | Description |
-|---------|-------------|------------|-------------|
-| Guardrails AI | ✅ | ✅ | Input/output validation |
-| Authentication | ❌ | ✅ | JWT-based user auth |
-| Rate Limiting | ❌ | ✅ | Request throttling |
-| Role-Based Access | ❌ | ✅ | RBAC implementation |
-| Security Headers | ❌ | ✅ | HTTP security headers |
-| Audit Logging | ❌ | ✅ | Comprehensive logging |
-| Threat Detection | ❌ | ✅ | Anomaly detection |
-| File Quarantine | ❌ | ✅ | Malicious file isolation |
-| Multimodal Security | ❌ | ✅ | Image/document validation |
-| Auto-Indexing | ✅ | ✅ | Background processing |
+| Feature | Current Status | Implementation |
+|---------|----------------|----------------|
+| Guardrails AI | ✅ | Input/output validation, PII detection |
+| CORS | ✅ | Allow all origins (development mode) |
+| File Validation | ✅ | Basic file type and content checks |
+| Error Sanitization | ✅ | Safe error message handling |
+| Auto-Indexing | ✅ | Background document processing |
+| Multimodal Processing | ✅ | Text, images, and tables extraction |
+| Chat History | ✅ | Conversation context management |
+| Adaptive Retrieval | ✅ | Fallback thresholds for better results |
+| Image Attachments | ✅ | Dynamic image inclusion in responses |
 
 ---
 
@@ -168,70 +166,45 @@ POST /upload
   - Enhanced document chunking
 ```
 
-### 4.2 Secure App Endpoints
+### 4.2 Current API Endpoints
 
-#### 4.2.1 Authentication Endpoints
-```
-POST /auth/login
-- Description: User authentication
-- Rate Limit: 5/minute
-- Returns: JWT token
-
-POST /auth/refresh
-- Description: Token refresh
-- Rate Limit: 10/minute
-- Authentication: Valid refresh token
-```
-
-#### 4.2.2 Secure Document Operations
+#### 4.2.1 Document Operations
 ```
 POST /upload
-- Description: Secure document upload
-- Rate Limit: 10/minute
-- Authentication: Required
+- Description: Upload and process documents
 - Features:
-  - File validation and quarantine
-  - Multimodal processing
-  - Guardrails content safety
-  - Metadata extraction
+  - Multimodal processing (text, images, tables)
+  - Guardrails file validation
+  - Content safety checks
+  - Auto-indexing with background scheduler
 
 GET /images/{filename}
 - Description: Serve extracted images
-- Rate Limit: 30/minute
-- Authentication: Required
-- Security: Path traversal protection
+- Security: Basic path validation
+- Public access for extracted images
 ```
 
-#### 4.2.3 Secure Query Processing
+#### 4.2.2 Query Processing
 ```
 POST /query
-- Description: Secure RAG query
-- Rate Limit: 30/minute
-- Authentication: Required
+- Description: RAG query processing
 - Features:
-  - Input validation
-  - Context-aware filtering
+  - Guardrails input validation
+  - Adaptive retrieval with fallback thresholds
+  - Chat history integration
   - Streaming response validation
-  - Audit logging
+  - Dynamic image attachments
+  - Similar query generation via LLM
 ```
 
-#### 4.2.4 Administrative Endpoints
+#### 4.2.3 Document Management
 ```
-GET /health
-- Description: System health check
-- Authentication: None
-- Returns: System status
-
-GET /security/stats
-- Description: Security statistics
-- Authentication: Admin role required
-- Returns: Security metrics and events
-
 DELETE /documents
-- Description: Secure document deletion
-- Rate Limit: 10/minute
-- Authentication: Required
-- Features: Audit logging
+- Description: Delete specific documents
+- Features:
+  - Remove from vector store
+  - Update indexing state
+  - Batch deletion support
 ```
 
 ---
@@ -322,6 +295,157 @@ DELETE /documents
 8. Metadata and Image File Storage
 ```
 
+### 5.5 Complete System Workflow Diagram
+
+The following comprehensive workflow diagram illustrates the complete end-to-end system workflow, including both document upload and query processing flows with all security layers and multimodal processing.
+
+```
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                    RAG SYSTEM WORKFLOW                      │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                      USER INTERACTION                       │
+                    │  ┌─────────────────┐              ┌─────────────────┐       │
+                    │  │  Document Upload│              │   Query Request │       │
+                    │  │   (POST /upload)│              │  (POST /query)  │       │
+                    │  └─────────────────┘              └─────────────────┘       │
+                    └─────────────────────────────────────────────────────────────┘
+                                    │                              │
+                                    ▼                              ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                    SECURITY LAYER                           │
+                    │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
+                    │  │ Basic CORS      │  │ Error Handling  │  │ File Type   │  │
+                    │  │ (Allow All)     │  │ Sanitization    │  │ Validation  │  │
+                    │  └─────────────────┘  └─────────────────┘  └─────────────┘  │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                  GUARDRAILS AI VALIDATION                   │
+                    │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
+                    │  │   PII Detection │  │ Toxic Language  │  │   Content   │  │
+                    │  │   & Masking     │  │   Detection     │  │   Safety    │  │
+                    │  └─────────────────┘  └─────────────────┘  └─────────────┘  │
+                    └─────────────────────────────────────────────────────────────┘
+                                    │                              │
+                                    ▼                              ▼
+            ┌─────────────────────────────────┐      ┌─────────────────────────────────┐
+            │        DOCUMENT PROCESSING       │      │        QUERY PROCESSING         │
+            │  ┌─────────────────────────────┐ │      │  ┌─────────────────────────────┐ │
+            │  │    Multimodal Extraction    │ │      │  │      Vector Search          │ │
+            │  │  ┌─────────┐ ┌─────────────┐│ │      │  │  ┌─────────┐ ┌─────────────┐│ │
+            │  │  │  Text   │ │   Images    ││ │      │  │  │  Text   │ │   Images    ││ │
+            │  │  │Extract  │ │  & Tables   ││ │      │  │  │Retrieval│ │  Retrieval  ││ │
+            │  │  └─────────┘ └─────────────┘│ │      │  │  └─────────┘ └─────────────┘│ │
+            │  └─────────────────────────────┘ │      │  └─────────────────────────────┘ │
+            │                │                 │      │                │                 │
+            │                ▼                 │      │                ▼                 │
+            │  ┌─────────────────────────────┐ │      │  ┌─────────────────────────────┐ │
+            │  │       Document Chunking     │ │      │  │     Keyword Detection       │ │
+            │  │    (Text Splitter)          │ │      │  │   (Image Attachment?)       │ │
+            │  └─────────────────────────────┘ │      │  └─────────────────────────────┘ │
+            │                │                 │      │                │                 │
+            │                ▼                 │      │                ▼                 │
+            │  ┌─────────────────────────────┐ │      │  ┌─────────────────────────────┐ │
+            │  │    Vector Embedding         │ │      │  │    Context Assembly         │ │
+            │  │   (Google Gemini)           │ │      │  │  (Text + Image Context)     │ │
+            │  └─────────────────────────────┘ │      │  └─────────────────────────────┘ │
+            └─────────────────────────────────┘      └─────────────────────────────────┘
+                                │                                      │
+                                ▼                                      ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                    STORAGE LAYER                            │
+                    │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
+                    │  │   ChromaDB      │  │   ChromaDB      │  │   File      │  │
+                    │  │  Text Store     │  │  Image Store    │  │  Storage    │  │
+                    │  └─────────────────┘  └─────────────────┘  └─────────────┘  │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                  LLM PROCESSING LAYER                       │
+                    │  ┌─────────────────────────────────────────────────────────┐ │
+                    │  │              Google Gemini LLM                          │ │
+                    │  │  ┌─────────────────┐  ┌─────────────────────────────────┐│ │
+                    │  │  │ Context-Aware   │  │     Response Generation         ││ │
+                    │  │  │   Processing    │  │    (Streaming Support)          ││ │
+                    │  │  └─────────────────┘  └─────────────────────────────────┘│ │
+                    │  └─────────────────────────────────────────────────────────┘ │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                 RESPONSE PROCESSING                         │
+                    │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
+                    │  │ Output Validation│  │ Image Encoding  │  │  Response   │  │
+                    │  │ (Guardrails AI) │  │   (Base64)      │  │  Assembly   │  │
+                    │  └─────────────────┘  └─────────────────┘  └─────────────┘  │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                   CLIENT RESPONSE                           │
+                    │  ┌─────────────────────────────────────────────────────────┐ │
+                    │  │           Streaming FastAPI Response                   │ │
+                    │  │  ┌─────────────────┐  ┌─────────────────────────────────┐│ │
+                    │  │  │   Text Content  │  │     Image DataURIs              ││ │
+                    │  │  │   (Markdown)    │  │   (Inline Attachments)          ││ │
+                    │  │  └─────────────────┘  └─────────────────────────────────┘│ │
+                    │  └─────────────────────────────────────────────────────────┘ │
+                    └─────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                    ┌─────────────────────────────────────────────────────────────┐
+                    │                   MONITORING & LOGGING                      │
+                    │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
+                    │  │ Security Events │  │ Performance     │  │   Audit     │  │
+                    │  │    Logging      │  │   Metrics       │  │   Trails    │  │
+                    │  └─────────────────┘  └─────────────────┘  └─────────────┘  │
+                    └─────────────────────────────────────────────────────────────┘
+```
+
+### 5.6 Query-to-Response Flow Diagram
+
+The following detailed flow diagram illustrates the specific query processing workflow with image attachment logic:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   User Query    │───▶│  Input Validation│───▶│  Text Retrieval │
+│  (e.g., "show   │    │  (Guardrails AI) │    │  (ChromaDB)     │
+│   image of      │    └─────────────────┘    └─────────────────┘
+│   diagram")     │         │                       │
+└─────────────────┘         │                       │
+                            ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Keyword Check  │───▶│  Image Retrieval │───▶│  LLM Generation │
+│  (Image-related?│    │  (Separate Store)│    │  (Google Gemini)│
+│   Yes: Attach)  │    └─────────────────┘    └─────────────────┘
+└─────────────────┘         │                       │
+                            ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Base64 Encode  │───▶│  Response Assembly│───▶│  Output Validation│
+│  Matched Images │    │  (Text + Images) │    │  (Guardrails AI) │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Streaming      │    │  Client Response │    │  End            │
+│  Response       │    │  (Text + DataURI)│    └─────────────────┘
+│  (FastAPI)      │    └─────────────────┘
+└─────────────────┘
+
+**Diagram Explanation**:
+- **Start**: User submits a query (e.g., containing "image" keywords).
+- **Validation**: Guardrails AI checks input for safety.
+- **Retrieval**: Text from main vector store; images from separate store if keywords match.
+- **Processing**: Base64 encode images for inline attachment.
+- **LLM**: Generate response using combined context.
+- **Output**: Validate and stream response with images.
+- **End**: Deliver to client with DataURI for rendering.
+
 ---
 
 ## 6. Security Implementation Details
@@ -397,39 +521,85 @@ roles_permissions = {
 
 ## 7. Future Implementation Features
 
-### 7.1 Advanced Security Features (Secure App Exclusive)
+### 7.1 Advanced Security Features (From secure_app.py Analysis)
 
-#### 7.1.1 Enhanced Threat Detection
+#### 7.1.1 Authentication & Authorization System
 ```python
-# Planned implementation
-class AdvancedThreatDetector:
-    - Behavioral anomaly detection
-    - Pattern-based attack recognition
-    - Machine learning threat classification
-    - Real-time threat scoring
-    - Automated response mechanisms
+# From secure_app.py - JWT-based authentication
+class AuthenticationSystem:
+    - JWT token-based authentication
+    - User login/logout endpoints
+    - Role-based access control (RBAC)
+    - Token refresh mechanisms
+    - Session management
 ```
 
-#### 7.1.2 Advanced Audit and Compliance
+#### 7.1.2 Rate Limiting & DDoS Protection
 ```python
-# Planned features
-class ComplianceEngine:
-    - GDPR compliance automation
-    - SOC 2 audit trail generation
-    - Data retention policy enforcement
-    - Privacy impact assessments
-    - Regulatory reporting automation
+# From secure_app.py - SlowAPI integration
+class RateLimitingSystem:
+    - Per-endpoint rate limiting
+    - IP-based request throttling
+    - Configurable rate limits
+    - DDoS protection mechanisms
+    - Rate limit exceeded handling
 ```
 
-#### 7.1.3 Multi-Tenant Architecture
+#### 7.1.3 Advanced Security Monitoring
 ```python
-# Future enhancement
-class MultiTenantManager:
-    - Tenant isolation
-    - Resource quotas per tenant
-    - Tenant-specific security policies
-    - Cross-tenant data protection
-    - Billing and usage tracking
+# From secure_app.py - Comprehensive logging
+class SecurityMonitoring:
+    - Security event logging
+    - Threat detection and scoring
+    - Anomaly detection algorithms
+    - Real-time security alerts
+    - Audit trail generation
+    - Risk score calculation
+```
+
+#### 7.1.4 File Security & Quarantine System
+```python
+# From secure_app.py - Advanced file handling
+class FileSecuritySystem:
+    - Advanced file validation
+    - Malicious file detection
+    - File quarantine mechanisms
+    - Content security scanning
+    - Data poisoning detection
+    - Secure file storage
+```
+
+#### 7.1.5 Enhanced CORS & Security Headers
+```python
+# From secure_app.py - Production security
+class SecurityHeaders:
+    - Restricted CORS policies
+    - Security headers implementation
+    - Content Security Policy (CSP)
+    - X-Frame-Options protection
+    - XSS protection headers
+```
+
+#### 7.1.6 Secure Vector Store & Document Management
+```python
+# From secure_app.py - Enterprise storage
+class SecureStorage:
+    - User-based access control
+    - Document ownership tracking
+    - Secure vector store operations
+    - Encrypted document storage
+    - Access logging and auditing
+```
+
+#### 7.1.7 Advanced Output Filtering
+```python
+# From secure_app.py - Response security
+class OutputSecurity:
+    - Multi-layer response validation
+    - Content filtering pipelines
+    - PII detection in responses
+    - Safe error message handling
+    - Response sanitization
 ```
 
 ### 7.2 AI/ML Enhancements
