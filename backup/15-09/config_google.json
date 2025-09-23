@@ -1,0 +1,10 @@
+{
+    "google_api_key": "AIzaSyCBtZrShtXHQZVCyjg5YbNXe69wz4wmCx4",
+    "google_llm": "gemini-1.5-flash-latest",
+    "google_embed": "text-embedding-004",
+    "chunk_size": 1200,
+    "chunk_overlap": 150,
+    "k": 4,
+    "min_relevance": 0.5,
+    "persist_dir": "storage/chroma_google"
+}

@@ -1,14 +1,60 @@
+# Core FastAPI and web framework
 fastapi
 uvicorn[standard]
 pydantic
+pydantic-settings
 python-multipart
+
+# Scheduling
 apscheduler
+
+# LangChain and AI components
 langchain
 langchain-core
 langchain-google-genai
 langchain-chroma
 langchain-community
 langchain-text-splitters
+
+# Document processing
 pypdf
 python-docx
 docx2txt
+
+# Multimodal processing dependencies
+PyMuPDF>=1.23.0  # Advanced PDF processing with image/table extraction
+Pillow>=10.0.0   # Image processing
+pandas>=2.0.0    # Table data processing
+google-generativeai>=0.3.0  # Gemini Vision API
+
+# Security dependencies
+cryptography>=41.0.0
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+python-multipart
+pyjwt>=2.8.0
+
+# File type detection and validation
+python-magic>=0.4.27
+python-magic-bin>=0.4.14  # For Windows
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Enhanced logging and monitoring
+structlog>=23.1.0
+colorlog>=6.7.0
+
+# HTTP security
+slowapi>=0.1.9  # Rate limiting
+starlette-context>=0.3.6  # Request context
+
+# Data validation and sanitization
+bleach>=6.0.0  # HTML sanitization
+validators>=0.20.0  # Input validation
+
+# Additional security utilities
+# secrets - Built-in Python module, no need to install
+
+# Guardrails for AI safety and validation
+guardrails-ai>=0.4.0

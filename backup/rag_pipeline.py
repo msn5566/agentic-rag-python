@@ -41,7 +41,6 @@ def add_to_vectorstore(
     """Adds new documents to an existing vectorstore and persists the changes."""
     if docs:
         vs.add_documents(docs)
-        vs.persist()
 
 def retrieve(
     vs: Chroma,
