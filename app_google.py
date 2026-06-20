@@ -187,14 +187,8 @@ def get_image_matches(query_text: str, thresholds: list, k_images: int) -> List[
         return []
 
 def build_image_attachment_chunk(query_text: str, thresholds: list) -> str:
-    # Check if query mentions image-related keywords
-    image_keywords = ["image", "screenshot", "picture", "pic"]
-    query_lower = query_text.lower()
-    should_include = cfg.get('include_image_attachments', True) or any(kw in query_lower for kw in image_keywords)
-    
-    if not should_include:
+    if not cfg.get('include_image_attachments', True):
         return ""
-    
     k_images = cfg.get('image_k', 2)
     matches = get_image_matches(query_text, thresholds=thresholds, k_images=k_images)
     if not matches:
@@ -234,7 +228,8 @@ else:
         # Image vector store
         "image_persist_dir": "storage/chroma_google_images",
         "image_k": 2,
-        "image_min_relevance": 0.5
+        "image_min_relevance": 0.5,
+        "include_image_attachments": True
     }
 
 # --- Set API Key and Initialize Models ---

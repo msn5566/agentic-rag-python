@@ -58,3 +58,11 @@ validators>=0.20.0  # Input validation
 
 # Guardrails for AI safety and validation
 guardrails-ai>=0.4.0
+
+# Multilingual support
+langdetect>=1.0.9
+googletrans>=3.1.0a0
+polyglot>=16.7.4
+PyICU>=2.12
+pycld2>=0.41
+morfessor>=2.0.6

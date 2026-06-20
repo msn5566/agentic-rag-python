@@ -256,8 +256,8 @@ def main():
     """Main function to convert the Technical Design Document."""
     
     # File paths
-    md_file = "Technical_Design_Document_RAG_System.md"
-    docx_file = "Technical_Design_Document_RAG_System.docx"
+    md_file = "documents/SYSTEM_PRESENTATION.md"
+    docx_file = "SYSTEM_PRESENTATION.docx"
     
     # Check if markdown file exists
     if not os.path.exists(md_file):

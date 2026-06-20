@@ -1,11 +1,12 @@
 {
     "google_api_key": "AIzaSyCBtZrShtXHQZVCyjg5YbNXe69wz4wmCx4",
-    "google_llm": "gemini-1.5-flash-latest",
+    "google_llm": "gemini-1.5-flash",
     "google_embed": "models/text-embedding-004",
     "chunk_size": 1200,
     "chunk_overlap": 150,
     "k": 4,
     "min_relevance": 0.3,
     "persist_dir": "storage/chroma_google",
-    "include_image_attachments": true
+    "include_image_attachments": true,
+    "GEMINI_MODEL":"gemini-1.5-flash-latest"
 }
